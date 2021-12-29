@@ -11,6 +11,7 @@ class Employee(db.Model, UserMixin):
     name=db.Column(db.String(100), nullable=False)
     employee_number=db.Column(db.Integer, nullable=False, unique=True)
     hashed_password=db.Column(db.String(255), nullable=False)
+    orders = db.relationship('Order', back_populates='employees')
 
     @property
     def password(self):
@@ -38,6 +39,7 @@ class MenuItem(db.Model):
     menu_type_id = db.Column(db.Integer, db.ForeignKey('menu_item_types.id'), nullable=False)
     menus = db.relationship('Menu', back_populates='menu_items')
     menu_item_types = db.relationship('MenuItemType', back_populates='menu_items')
+    order_details = db.relationship('OrderDetail', back_populates='menu_items')
 
 class MenuItemType(db.Model):
     __tablename__ = 'menu_item_types'
@@ -50,6 +52,7 @@ class Table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, nullable=False, unique=True)
     capacity = db.Column(db.Integer, nullable=False)
+    orders = db.relationship('Order', back_populates="tables")
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -57,3 +60,14 @@ class Order(db.Model):
     employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
     table_id = db.Column(db.Integer, db.ForeignKey('tables.id'), nullable=False)
     finished = db.Column(db.Boolean, nullable=False)
+    employees = db.relationship('Employee', back_populates='orders', cascade= 'all, delete')
+    tables = db.relationship('Table', back_populates='orders', cascade= 'all, delete')
+    order_details = db.relationship('OrderDetail', back_populates='details')
+
+class OrderDetail(db.Model):
+    __tablename__ = 'orderdetails'
+    id =  db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_items.id'), nullable=False)
+    details = db.relationship('Order', back_populates='order_details')
+    menu_items = db.relationship('MenuItem', back_populates='order_details')

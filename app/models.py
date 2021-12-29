@@ -1,3 +1,4 @@
+from enum import unique
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,3 +22,38 @@ class Employee(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+class Menu(db.Model):
+    __tablename__= 'menus'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    menu_items = db.relationship('MenuItem', back_populates='menus', cascade ='all, delete')
+
+class MenuItem(db.Model):
+    __tablename__= 'menu_items'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    menu_id = db.Column(db.Integer, db.ForeignKey('menus.id'), nullable=False)
+    menu_type_id = db.Column(db.Integer, db.ForeignKey('menu_item_types.id'), nullable=False)
+    menus = db.relationship('Menu', back_populates='menu_items')
+    menu_item_types = db.relationship('MenuItemType', back_populates='menu_items')
+
+class MenuItemType(db.Model):
+    __tablename__ = 'menu_item_types'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    menu_items = db.relationship('MenuItem', back_populates='menu_item_types', cascade = 'all, delete')
+
+class Table(db.Model):
+    __tablename__ = 'tables'
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False, unique=True)
+    capacity = db.Column(db.Integer, nullable=False)
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    table_id = db.Column(db.Integer, db.ForeignKey('tables.id'), nullable=False)
+    finished = db.Column(db.Boolean, nullable=False)

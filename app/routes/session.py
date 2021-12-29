@@ -3,9 +3,9 @@ from flask_login import current_user, login_user, logout_user
 from app.forms import LoginForm
 from app.models import Employee
 
-bp = Blueprint("session", __name__, url_prefix='/session' )
+bp2 = Blueprint("session", __name__, url_prefix='/session' )
 
-@bp.route("/", methods=["GET", "POST"])
+@bp2.route("/", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("orders.index"))
@@ -16,10 +16,12 @@ def login():
         if not employee or not employee.check_password(form.password.data):
             return redirect(url_for(".login"))
         login_user(employee)
+        print(login_user)
         return redirect(url_for("orders.index"))
     return render_template("login.html", form=form)
 
-@bp.route('/logout', methods=["POST"])
+
+@bp2.route('/logout', methods=["POST"])
 def logout():
     logout_user()
     return redirect(url_for('.login'))
